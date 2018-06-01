@@ -8,6 +8,7 @@ target 'MapBoxMaps' do
   # Pods for MapBoxMaps
 
   pod 'Mapbox-iOS-SDK', '~> 4.0'
+  pod 'MapboxNavigation', '~> 0.17'
 
 
 
