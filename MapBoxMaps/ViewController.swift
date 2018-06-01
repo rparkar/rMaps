@@ -57,6 +57,11 @@ class ViewController: UIViewController, MGLMapViewDelegate {
     @objc func navigationButtonPressed(_ sender: UIButton){
         
         mapView.setUserTrackingMode(.none, animated: true)
+        let annotation = MGLPointAnnotation()
+        annotation.coordinate = disneyCoordinate
+        annotation.title = "Start navigation"
+        mapView.addAnnotation(annotation)
+        
         
         calculateRoute(from: mapView.userLocation!.coordinate, to: disneyCoordinate) { (route, error) in
             
@@ -107,6 +112,15 @@ class ViewController: UIViewController, MGLMapViewDelegate {
             mapView.style?.addLayer(lineStyle)
 
         }
+    }
+    
+    func mapView(_ mapView: MGLMapView, annotationCanShowCallout annotation: MGLAnnotation) -> Bool {
+        return true
+    }
+    
+    func mapView(_ mapView: MGLMapView, tapOnCalloutFor annotation: MGLAnnotation) {
+        let navigationVC = NavigationViewController(for: directionRoute!)
+        present(navigationVC, animated: true, completion: nil )
     }
     
 
