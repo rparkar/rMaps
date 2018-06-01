@@ -18,6 +18,7 @@ class ViewController: UIViewController, MGLMapViewDelegate {
     //variables
     var MapView: NavigationMapView!
     var navigateButton: UIButton!
+    var directionRoute: Route?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,6 +57,25 @@ class ViewController: UIViewController, MGLMapViewDelegate {
         
     }
     
+    func calculateRoute(from originCoOr:CLLocationCoordinate2D, to destinationCoOr: CLLocationCoordinate2D,  completion: @ escaping (Route?, Error?) -> (Void)) {
+        
+        let origin = Waypoint(coordinate: originCoOr, coordinateAccuracy: -1, name: "start")
+        let destination = Waypoint(coordinate: destinationCoOr, coordinateAccuracy: -1, name: "Finish")
+        let option = NavigationRouteOptions(waypoints: [origin, destination], profileIdentifier: .automobileAvoidingTraffic)
+        
+        _ = Directions.shared.calculate(option, completionHandler: { (wayPoints, routes, error) in
+            
+            self.directionRoute = routes?.first
+            
+            //
+            let coordinateBounds = MGLCoordinateBounds(sw: destinationCoOr, ne: originCoOr)
+            let insets = UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50)
+            let routeCam = self.MapView.cameraThatFitsCoordinateBounds(coordinateBounds, edgePadding: insets)
+            self.MapView.setCamera(routeCam, animated: true)
+            
+        })
+        
+    }
     
 
 }
