@@ -16,20 +16,21 @@ import MapboxNavigation
 class ViewController: UIViewController, MGLMapViewDelegate {
 
     //variables
-    var MapView: NavigationMapView!
+    var mapView: NavigationMapView!
     var navigateButton: UIButton!
     var directionRoute: Route?
+    let disneyCoordinate = CLLocationCoordinate2D(latitude: 33.8121, longitude: -117.9190)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        MapView = NavigationMapView(frame: view.bounds)
-        MapView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
-        view.addSubview(MapView)
+        mapView = NavigationMapView(frame: view.bounds)
+        mapView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
+        view.addSubview(mapView)
         
-        MapView.delegate = self
-        MapView.showsUserLocation = true
-        MapView.setUserTrackingMode(.follow, animated: true)
+        mapView.delegate = self
+        mapView.showsUserLocation = true
+        mapView.setUserTrackingMode(.follow, animated: true)
         
         addButton()
     }
@@ -55,9 +56,18 @@ class ViewController: UIViewController, MGLMapViewDelegate {
     
     @objc func navigationButtonPressed(_ sender: UIButton){
         
+        mapView.setUserTrackingMode(.none, animated: true)
+        
+        calculateRoute(from: mapView.userLocation!.coordinate, to: disneyCoordinate) { (route, error) in
+            
+           
+            if error != nil {
+                print("error loading route")
+            }
+        }
     }
     
-    func calculateRoute(from originCoOr:CLLocationCoordinate2D, to destinationCoOr: CLLocationCoordinate2D,  completion: @ escaping (Route?, Error?) -> (Void)) {
+    func calculateRoute(from originCoOr:CLLocationCoordinate2D, to destinationCoOr: CLLocationCoordinate2D,  completion: @ escaping (Route?, Error?) -> Void) {
         
         let origin = Waypoint(coordinate: originCoOr, coordinateAccuracy: -1, name: "start")
         let destination = Waypoint(coordinate: destinationCoOr, coordinateAccuracy: -1, name: "Finish")
@@ -66,15 +76,37 @@ class ViewController: UIViewController, MGLMapViewDelegate {
         _ = Directions.shared.calculate(option, completionHandler: { (wayPoints, routes, error) in
             
             self.directionRoute = routes?.first
+
+            self.drawRoute(route: self.directionRoute!)
             
-            //
             let coordinateBounds = MGLCoordinateBounds(sw: destinationCoOr, ne: originCoOr)
             let insets = UIEdgeInsets(top: 50, left: 50, bottom: 50, right: 50)
-            let routeCam = self.MapView.cameraThatFitsCoordinateBounds(coordinateBounds, edgePadding: insets)
-            self.MapView.setCamera(routeCam, animated: true)
+            let routeCam = self.mapView.cameraThatFitsCoordinateBounds(coordinateBounds, edgePadding: insets)
+            self.mapView.setCamera(routeCam, animated: true)
             
         })
         
+    }
+    
+    func drawRoute(route: Route) {
+
+        guard route.coordinateCount > 0  else {return}
+        var routeCoordinates = route.coordinates!
+        let polyLine = MGLPolylineFeature(coordinates: &routeCoordinates, count: route.coordinateCount)
+
+        if let source = mapView.style?.source(withIdentifier: "route-source") as? MGLShapeSource {
+            source.shape = polyLine
+        } else {
+            let source = MGLShapeSource(identifier: "route-source", features: [polyLine], options: nil)
+
+            let lineStyle = MGLLineStyleLayer(identifier: "route-source", source: source)
+            //lineStyle.lineColor = MGLStyleConstantValue(UIColor.blue)
+           // lineStyle.lineWidth = MGLStyleConstantValue(4.0)
+
+            mapView.style?.addSource(source)
+            mapView.style?.addLayer(lineStyle)
+
+        }
     }
     
 
