@@ -19,8 +19,11 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
     var mapView: NavigationMapView!
     var navigateButton: UIButton!
     var destinationTextField : UITextField!
+    var tableView: UITableView!
     var directionRoute: Route?
     let disneyCoordinate = CLLocationCoordinate2D(latitude: 33.8121, longitude: -117.9190)
+    
+    private let myArray: NSArray = ["First","Second","Third"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,6 +41,11 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
         addTextBox()
         destinationTextField.delegate = self
         addButton()
+
+        
+        addTableView()
+        tableView.delegate = self
+        tableView.dataSource = self
     }
 
     
@@ -75,6 +83,23 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
         view.addSubview(destinationTextField)
         
         
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        tableView.isHidden = false
+    }
+    
+    func addTableView() {
+        
+
+        tableView = UITableView(frame: CGRect(x: 0, y: 40, width: 300, height: 160))
+        
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "locationCell")
+        
+     
+        tableView.isHidden = true
+        
+        destinationTextField.addSubview(tableView)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -156,3 +181,31 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
 
 }
 
+
+extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+        
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return myArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "locationCell") else {return UITableViewCell()}
+        cell.textLabel?.text = "\(myArray[indexPath.row])"
+        
+        return cell
+        
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+    
+        destinationTextField.text = "\(myArray[indexPath.row])"
+        tableView.isHidden = true
+    }
+}
