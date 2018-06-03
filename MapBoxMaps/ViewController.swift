@@ -13,11 +13,12 @@ import MapboxCoreNavigation
 import MapboxNavigation
 
 
-class ViewController: UIViewController, MGLMapViewDelegate {
+class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate {
 
     //variables
     var mapView: NavigationMapView!
     var navigateButton: UIButton!
+    var destinationTextField : UITextField!
     var directionRoute: Route?
     let disneyCoordinate = CLLocationCoordinate2D(latitude: 33.8121, longitude: -117.9190)
     
@@ -32,6 +33,10 @@ class ViewController: UIViewController, MGLMapViewDelegate {
         mapView.showsUserLocation = true
         mapView.setUserTrackingMode(.follow, animated: true)
         
+        
+        
+        addTextBox()
+        destinationTextField.delegate = self
         addButton()
     }
 
@@ -53,6 +58,31 @@ class ViewController: UIViewController, MGLMapViewDelegate {
         
         
     }
+    
+    func addTextBox() {
+        destinationTextField = UITextField(frame: CGRect(x: (view.frame.width / 2) - 150, y: (view.frame.height / 2) - 300, width: 300, height: 40))
+        destinationTextField.placeholder = "Enter destination"
+        destinationTextField.font = UIFont(name: "AvenitNext-Regular", size: 16)
+        destinationTextField.layer.cornerRadius = 10
+        destinationTextField.backgroundColor = #colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+        destinationTextField.textColor = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
+        destinationTextField.returnKeyType = .go
+        
+    
+        //destinationTextField.enablesReturnKeyAutomatically = true
+        
+        
+        view.addSubview(destinationTextField)
+        
+        
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        //navigationButtonPressed(navigateButton)
+        textField.resignFirstResponder()
+        return true
+    }
+
     
     @objc func navigationButtonPressed(_ sender: UIButton){
         
