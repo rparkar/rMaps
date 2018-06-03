@@ -22,8 +22,14 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
     var tableView: UITableView!
     var directionRoute: Route?
     let disneyCoordinate = CLLocationCoordinate2D(latitude: 33.8121, longitude: -117.9190)
+    let MTSCentreCoordinate = CLLocationCoordinate2D(latitude: 49.8916, longitude: -97.1446)
+    let CNTower = CLLocationCoordinate2D(latitude: 43.6424, longitude: -79.3892)
+  
+    var myLocationArray: [CLLocationCoordinate2D] = []
+    var selectedLocation: CLLocationCoordinate2D?
     
-    private let myArray: NSArray = ["First","Second","Third"]
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +42,7 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
         mapView.showsUserLocation = true
         mapView.setUserTrackingMode(.follow, animated: true)
         
-        
+        myLocationArray = [disneyCoordinate, MTSCentreCoordinate, CNTower]
         
         addTextBox()
         destinationTextField.delegate = self
@@ -92,14 +98,14 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
     func addTableView() {
         
 
-        tableView = UITableView(frame: CGRect(x: 0, y: 40, width: 300, height: 160))
+        tableView = UITableView(frame: CGRect(x: 0, y: 100, width: 300, height: 160))
         
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "locationCell")
-        
+        tableView.layer.cornerRadius = 5
      
         tableView.isHidden = true
         
-        destinationTextField.addSubview(tableView)
+        view.addSubview(tableView)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -113,12 +119,12 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
         
         mapView.setUserTrackingMode(.none, animated: true)
         let annotation = MGLPointAnnotation()
-        annotation.coordinate = disneyCoordinate
+        annotation.coordinate =  selectedLocation!//disneyCoordinate
         annotation.title = "Start navigation"
         mapView.addAnnotation(annotation)
         
         
-        calculateRoute(from: mapView.userLocation!.coordinate, to: disneyCoordinate) { (route, error) in
+        calculateRoute(from: mapView.userLocation!.coordinate, to: selectedLocation!) { (route, error) in
             
            
             if error != nil {
@@ -190,13 +196,13 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return myArray.count
+        return myLocationArray.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "locationCell") else {return UITableViewCell()}
-        cell.textLabel?.text = "\(myArray[indexPath.row])"
+        cell.textLabel?.text = "\(myLocationArray[indexPath.row])"
         
         return cell
         
@@ -205,7 +211,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
     
-        destinationTextField.text = "\(myArray[indexPath.row])"
+        destinationTextField.text = String(describing: myLocationArray[indexPath.row])
+        selectedLocation = myLocationArray[indexPath.row]
         tableView.isHidden = true
     }
 }
