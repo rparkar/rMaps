@@ -66,6 +66,8 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
         navigateButton.layer.shadowColor = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
         navigateButton.layer.shadowRadius = 5
         navigateButton.layer.shadowOpacity = 0.3
+        navigateButton.isEnabled = false
+        
         
         navigateButton.addTarget(self, action: #selector(navigationButtonPressed(_:)), for: .touchUpInside)
         view.addSubview(navigateButton)
@@ -119,9 +121,10 @@ class ViewController: UIViewController, MGLMapViewDelegate, UITextFieldDelegate 
         
         mapView.setUserTrackingMode(.none, animated: true)
         let annotation = MGLPointAnnotation()
-        annotation.coordinate =  selectedLocation!//disneyCoordinate
+        annotation.coordinate =  selectedLocation! //disneyCoordinate
         annotation.title = "Start navigation"
         mapView.addAnnotation(annotation)
+        navigateButton.isHidden = true
         
         
         calculateRoute(from: mapView.userLocation!.coordinate, to: selectedLocation!) { (route, error) in
@@ -210,9 +213,10 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-    
+  
         destinationTextField.text = String(describing: myLocationArray[indexPath.row])
         selectedLocation = myLocationArray[indexPath.row]
         tableView.isHidden = true
+        navigateButton.isEnabled = true
     }
 }
